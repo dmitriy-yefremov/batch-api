@@ -1,0 +1,8 @@
+# a couple of individual endpoints
+GET        /foo        net.yefremov.play.sample.FooBarControler.foo
+GET        /bar        net.yefremov.play.sample.FooBarControler.bar
+
+# batch API endpoint
+GET        /batch      net.yefremov.play.batch.BatchApiController.batchGet
+
+    

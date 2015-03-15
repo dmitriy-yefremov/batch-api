@@ -25,6 +25,11 @@ object BatchApiController extends Controller {
     Future.sequence(resultFutures).map(combineResults)
   }
 
+  /**
+   * Makes an internal fetch within the application.
+   * @param path the URL to fetch
+   * @return the result returned by the endpoint
+   */
   private def fetch(path: String)(implicit request: RequestHeader): Future[Result] = {
     val fetchRequest = createFetchRequest(path)
     val handler = Play.current.global.onRouteRequest(fetchRequest)
@@ -36,10 +41,16 @@ object BatchApiController extends Controller {
     }
   }
 
+  /**
+   * Creates a copy of the incoming request with the path changed to the given path.
+   */
   private def createFetchRequest(path: String)(implicit request: RequestHeader): RequestHeader = {
     request.copy(path = path, uri = path)
   }
 
+  /**
+   * Invokes the given controller action.
+   */
   private def proxyAction(action: => EssentialAction)(implicit request: RequestHeader): Future[Result] = {
     // surround acton invocation with try and recover with a failed future in case there is an exception in the action
     try {
@@ -50,6 +61,9 @@ object BatchApiController extends Controller {
     }
   }
 
+  /**
+   * Combines individual results into a batch result.
+   */
   private def combineResults(results: Iterable[(String, Result)]): Result = {
 
     def bytesEnumerator(s: String) = Enumerator(s.getBytes)

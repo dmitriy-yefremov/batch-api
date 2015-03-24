@@ -42,10 +42,15 @@ object BatchApiController extends Controller {
   }
 
   /**
-   * Creates a copy of the incoming request with the path changed to the given path.
+   * Creates a copy of the incoming request with the uri, path, and query string updated based on the uri.
    */
-  private def createFetchRequest(path: String)(implicit request: RequestHeader): RequestHeader = {
-    request.copy(path = path, uri = path)
+  private def createFetchRequest(uri: String)(implicit request: RequestHeader): RequestHeader = {
+    val rawQueryString = uri.split('?').drop(1).mkString("?")
+    request.copy(
+      uri = uri,
+      path = uri.split('?').take(1).mkString,
+      queryString = play.core.parsers.FormUrlEncodedParser.parse(rawQueryString)
+    )
   }
 
   /**

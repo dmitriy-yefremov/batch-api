@@ -1,5 +1,7 @@
 package net.yefremov.play.batch
 
+import java.net.URL
+
 import scala.concurrent.Future
 import scala.util.control.NonFatal
 
@@ -7,6 +9,7 @@ import play.api.Play
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.iteratee.Enumerator
 import play.api.mvc._
+import play.core.parsers.FormUrlEncodedParser
 
 /**
  * An example of a Facebook-style batch API implementation for Play. Only GET requests are supported.
@@ -44,12 +47,12 @@ object BatchApiController extends Controller {
   /**
    * Creates a copy of the incoming request with the uri, path, and query string updated based on the uri.
    */
-  private def createFetchRequest(uri: String)(implicit request: RequestHeader): RequestHeader = {
-    val rawQueryString = uri.split('?').drop(1).mkString("?")
+  private def createFetchRequest(path: String)(implicit request: RequestHeader): RequestHeader = {
+    val url = new URL("http", "", path)
     request.copy(
-      uri = uri,
-      path = uri.split('?').take(1).mkString,
-      queryString = play.core.parsers.FormUrlEncodedParser.parse(rawQueryString)
+      uri = path,
+      path = url.getPath,
+      queryString = FormUrlEncodedParser.parse(Option(url.getQuery).getOrElse(""))
     )
   }
 
